@@ -1,0 +1,19 @@
+body {
+  background-color: rgb(39, 18, 73);
+  font-family: "Open Sans", sans-serif;
+}
+
+#frame {
+  /* Necessary to make sure frame width/height
+    isn't set according to the canvas element */
+  position: absolute;
+  overflow: hidden;
+
+  /* Optional stuff for positioning */
+  top: 50%;
+  left: 50%;
+  width: 95%;
+  height: 90%;
+  transform: translate(-50%, -50%);
+  -webkit-transform: translate(-50%, -50%);
+}
