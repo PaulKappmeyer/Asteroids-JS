@@ -1,9 +1,9 @@
 // Aliases
 const Application = PIXI.Application;
-const loader = PIXI.Loader.shared;
-const resources = PIXI.Loader.shared.resources;
+const Assets = PIXI.Assets;
 const Sprite = PIXI.Sprite;
 const Container = PIXI.Container;
+const ParticleContainer = PIXI.ParticleContainer;
 
 // Create a Pixi Application
 let windowSize = [0, 0];
@@ -31,16 +31,11 @@ function resize() {
 }
 resize();
 
-// load an image and run the `setup` function when it's done
-loader
-  .add("images/rocket.png")
-  .add("images/rocket-boost.png")
-  .load(setup);
-
 // Define any variables that are used in more than one function
 let gamestate;
 let gameScene;
 let rocket;
+let emitter;
 
 // Capture the keyboard arrow keys
 const UP_KEY = keyboard("ArrowUp");
@@ -62,13 +57,19 @@ const FRICTION = 0.1;
 const ROTATION_FRICTION = 0.0025;
 
 //This `setup` function will run when the image has loaded
-function setup() {
+async function setup() {
   // Make the game scene and add it to the stage
   gameScene = new Container();
   app.stage.addChild(gameScene);
 
+  // create particle emitter
+  const particleContainer = new ParticleContainer();
+  gameScene.addChild(particleContainer);
+  const emitterSettings = await Assets.load("./emitter.json");
+  emitter = new PIXI.particles.Emitter(particleContainer, emitterSettings);
+
   // Create the rocket sprite
-  rocket = new Sprite(resources["images/rocket.png"].texture);
+  rocket = Sprite.from("images/rocket.png");
   rocket.scale.set(0.25, 0.25);
   rocket.anchor.set(0.5, 0.5);
   rocket.position.set(windowSize[0] / 2, windowSize[1] / 2);
@@ -91,6 +92,7 @@ function setup() {
   // Start the game loop
   app.ticker.add((delta) => gameLoop(delta));
 }
+setup();
 
 // main game loop
 function gameLoop(delta) {
@@ -101,9 +103,6 @@ function gameLoop(delta) {
 // game state = playing
 function gamePlaying(delta) {
   // ------------------------------------------ update player movement:
-  // update texture
-  rocket.texture = resources["images/rocket.png"].texture;
-
   // apply friction and check for complete stop of motion
   if (Math.abs(rocket.speed) > FRICTION) {
     rocket.acceleration = -Math.sign(rocket.speed) * FRICTION;
@@ -120,14 +119,20 @@ function gamePlaying(delta) {
     rocket.rotationSpeed = 0;
   }
 
+  // update particle emitter: set position and rotation
+  emitter.rotate(Math.PI + rocket.rotation);
+  emitter.updateSpawnPos(rocket.x, rocket.y);
+  emitter.update(delta);
+  emitter.emit = false;
+
   // check keyboard input: apply boost
   if (UP_KEY.isDown || W_KEY.isDown) {
-    rocket.texture = resources["images/rocket-boost.png"].texture;
     rocket.acceleration += rocket.accelerationBoost;
+    emitter.emit = true; // start emitting of particles
   }
   if (DOWN_KEY.isDown || S_KEY.isDown) {
-    rocket.texture = resources["images/rocket-boost.png"].texture;
     rocket.acceleration += -rocket.accelerationBoost * 0.5;
+    emitter.emit = true; // start emitting of particles
   }
   if (LEFT_KEY.isDown || A_KEY.isDown) {
     rocket.rotationAcceleration += -rocket.rotationAccelerationBoost;
