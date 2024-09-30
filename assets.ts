@@ -6,6 +6,7 @@ export const manifest: AssetsManifest = {
       name: "game",
       assets: {
         rocket: "./rocket.png",
+        bullet: "./bullet.png",
         particleSettings: "./emitter.json",
       },
     },
