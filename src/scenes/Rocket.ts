@@ -42,21 +42,34 @@ export class Rocket extends Sprite {
   private reloadTime: number = 120; // time to reload
   private ammoText: BitmapText; // (TODO: better HUD system)
 
+  //  variables for smooth looking looping around edges
+  private spriteClones: Sprite[] = [];
+
   constructor(container: Container) {
     super(Assets.get("rocket"));
     // creating the rocket/player
     this.scale.set(0.25);
     this.anchor.set(0.5);
     this.position.set(SceneManager.width / 2, SceneManager.height / 2);
-    
+
+    // create the clones for smooth looping around edges
+    for (let _ = 0; _ < 4; _++) {
+      let sprite = Sprite.from(Assets.get("rocket"));
+      sprite.scale.set(0.25);
+      sprite.anchor.set(0.5);
+      this.spriteClones.push(sprite);
+    }
+
     // create the particle emitter for boost animation
     const particleContainer: ParticleContainer = new ParticleContainer();
     const particleSettings: EmitterConfigV3 = Assets.get("particleSettings");
     this.emitter = new Emitter(particleContainer, particleSettings);
 
     // create the variables for rocket shooting
-    for (let i: number = 0; i < this.maxAmmo; i++) {
-      this.shootContainer.addChild(new Bullet());
+    for (let _: number = 0; _ < this.maxAmmo; _++) {
+      let b = new Bullet();
+      b.spriteClones.forEach((e) => container.addChild(e));
+      this.shootContainer.addChild(b);
     }
     BitmapFont.from("comic 32", {
       fill: "#ffffff", // White, will be colored later
@@ -72,6 +85,7 @@ export class Rocket extends Sprite {
     // add components to container
     container.addChild(particleContainer);
     container.addChild(this.shootContainer);
+    this.spriteClones.forEach((e) => container.addChild(e));
     container.addChild(this);
     container.addChild(this.ammoText);
   }
@@ -134,34 +148,27 @@ export class Rocket extends Sprite {
     this.rotation += this.rotationSpeed * framesPassed;
 
     // loop rocket around edges
-    while (this.x < 0) {
-      this.x += SceneManager.width;
-    }
-    while (this.x > SceneManager.width) {
-      this.x -= SceneManager.width;
-    }
-    while (this.y < 0) {
-      this.y += SceneManager.height;
-    }
-    while (this.y > SceneManager.height) {
-      this.y -= SceneManager.height;
-    }
+    this.x = GameScene.modAbs(this.x, SceneManager.width);
+    this.y = GameScene.modAbs(this.y, SceneManager.height);
+
+    // update position and rotation of clones
+    this.spriteClones[0].position.set(this.x - SceneManager.width, this.y);
+    this.spriteClones[1].position.set(this.x + SceneManager.width, this.y);
+    this.spriteClones[2].position.set(this.x, this.y - SceneManager.height);
+    this.spriteClones[3].position.set(this.x, this.y + SceneManager.height);
+    this.spriteClones.forEach((e) => (e.rotation = this.rotation));
 
     // ------------------------------------------ update player shooting:
-    // update the bullets:
-    this.shootContainer.children.forEach((bullet) => {
-      (bullet as Bullet).update(framesPassed);
-    });
-
     // check keyboard input: shoot
     if (this.canShoot && Keyboard.state.get("Space")) {
       for (let i: number = 0; i < this.shootContainer.children.length; i++) {
-        const bullet = this.shootContainer.getChildAt(i);
+        const bullet: Bullet = this.shootContainer.getChildAt(i) as Bullet;
         if (bullet.visible == false) {
           bullet.x = this.x;
           bullet.y = this.y;
           bullet.rotation = this.rotation;
           bullet.visible = true;
+          (bullet as Bullet).spriteClones.forEach((e) => (e.visible = true));
           this.canShoot = false;
           this.ammo--;
           this.ammoText.text = "Ammo " + this.ammo;
@@ -169,6 +176,11 @@ export class Rocket extends Sprite {
         }
       }
     }
+
+    // update the bullets:
+    this.shootContainer.children.forEach((bullet) => {
+      (bullet as Bullet).update(framesPassed);
+    });
 
     // update timers:
     if (this.canShoot == false) {

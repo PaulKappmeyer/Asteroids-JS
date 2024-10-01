@@ -25,4 +25,8 @@ export class GameScene extends Container implements IScene {
   public static clamp(value: number, min: number, max: number): number {
     return Math.min(Math.max(value, min), max);
   }
+
+  public static modAbs(value: number, modulo: number): number {
+    return ((value % modulo) + modulo) % modulo;
+  }
 }
