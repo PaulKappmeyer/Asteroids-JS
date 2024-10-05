@@ -55,7 +55,7 @@ export class Rocket extends Sprite {
     }
 
     // create the particle emitter for boost animation
-    this.emitter = new Emitter(this.particleContainer, Assets.get("particleSettings"));
+    this.emitter = new Emitter(this.particleContainer, Assets.get("boostParticles"));
 
     // create the variables for rocket shooting
     for (let _: number = 0; _ < this.maxAmmo; _++) {

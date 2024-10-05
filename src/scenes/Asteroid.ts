@@ -1,8 +1,10 @@
-import { Assets, Sprite } from "pixi.js";
+import { Assets, ParticleContainer, Sprite } from "pixi.js";
 import { GameScene } from "./GameScene";
 import { SceneManager } from "../SceneManager";
+import { Emitter } from "@pixi/particle-emitter";
 
 export class Asteroid extends Sprite {
+  // variables for size
   private minScale: number = 0.25;
   private maxScale: number = 0.5;
 
@@ -19,6 +21,10 @@ export class Asteroid extends Sprite {
   private tightLoopAround: boolean;
   public readonly spriteClones: Sprite[] = [];
 
+  // particle emitter for explode animation
+  public readonly particleContainer: ParticleContainer = new ParticleContainer();
+  private readonly emitter: Emitter;
+
   constructor() {
     super(Assets.get("asteroid"));
     this.anchor.set(0.5);
@@ -31,9 +37,17 @@ export class Asteroid extends Sprite {
       sprite.visible = false;
       this.spriteClones.push(sprite);
     }
+
+    // create the particle emitter for boost animation
+    this.emitter = new Emitter(this.particleContainer, Assets.get("asteroidExplodeParticles"));
+    this.emitter.emit = false;
+    // this.emitter.autoUpdate = true;
   }
 
   public update(framesPassed: number): void {
+    // update emitter
+    this.emitter.update(framesPassed * 0.05);
+
     // is asteroid active?
     if (this.visible == false) {
       return;
@@ -88,5 +102,10 @@ export class Asteroid extends Sprite {
   public stop(): void {
     this.visible = false;
     this.spriteClones.forEach((e) => (e.visible = false));
+
+    // start particle explosion
+    this.emitter.updateSpawnPos(this.x, this.y);
+    this.emitter.resetPositionTracking();
+    this.emitter.playOnce();
   }
 }

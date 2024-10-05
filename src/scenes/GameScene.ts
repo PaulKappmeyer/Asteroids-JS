@@ -57,6 +57,7 @@ export class GameScene extends Container implements IScene {
 
     // add asteroids
     for (const asteroid of this.asteroids) {
+      this.addChild(asteroid.particleContainer);
       asteroid.spriteClones.forEach((e) => this.addChild(e));
       this.addChild(asteroid);
     }
