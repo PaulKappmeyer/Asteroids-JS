@@ -1,0 +1,17 @@
+﻿{
+    "dropShadow": true,
+    "dropShadowAngle": 0.5,
+    "dropShadowBlur": 5,
+    "dropShadowColor": "#4a228c",
+    "dropShadowDistance": 10,
+    "fill": [
+        "#4a228c",
+        "#b81e1e"
+    ],
+    "fontFamily": "Times New Roman",
+    "fontSize": 100,
+    "lineJoin": "bevel",
+    "miterLimit": 5,
+    "stroke": "#ffffff",
+    "strokeThickness": 3
+}

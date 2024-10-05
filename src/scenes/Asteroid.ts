@@ -56,6 +56,7 @@ export class Asteroid extends Sprite {
   }
 
   public start(): void {
+    this.position.set(0, 0);
     this.scale.set(GameScene.randomNumber(this.minScale, this.maxScale));
     this.direction = GameScene.randomNumber(0, 2 * Math.PI);
     this.speed = GameScene.randomNumber(this.minSpeed, this.maxSpeed);

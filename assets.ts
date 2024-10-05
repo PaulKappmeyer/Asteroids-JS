@@ -9,6 +9,7 @@ export const manifest: AssetsManifest = {
         bullet: "./bullet.png",
         asteroid: "./asteroid.png",
         particleSettings: "./emitter.json",
+        gameoverTextstyle: "./gameoverTextstyle.json",
       },
     },
   ],

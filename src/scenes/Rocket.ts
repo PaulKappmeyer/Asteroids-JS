@@ -1,5 +1,5 @@
-import { Sprite, Assets, ParticleContainer, Container, BitmapText, BitmapFont } from "pixi.js";
-import { Emitter, EmitterConfigV3 } from "@pixi/particle-emitter";
+import { Sprite, Assets, ParticleContainer, BitmapText, BitmapFont } from "pixi.js";
+import { Emitter } from "@pixi/particle-emitter";
 import { SceneManager } from "../SceneManager";
 import { Keyboard } from "../Keyboard";
 import { GameScene } from "./GameScene";
@@ -7,43 +7,44 @@ import { Bullet } from "./Bullet";
 
 export class Rocket extends Sprite {
   // particle emitter for boost animation
-  private emitter: Emitter;
+  public readonly particleContainer: ParticleContainer = new ParticleContainer();
+  private readonly emitter: Emitter;
 
   // varaibles for rocket movement
   private speed: number = 0;
-  private maxSpeed: number = 10;
+  private readonly maxSpeed: number = 10;
   private acceleration: number = 0;
-  private accelerationBoost: number = 0.5; // applied when up key is pressed
+  private readonly accelerationBoost: number = 0.5; // applied when up key is pressed
 
   // variables for rocket rotation movement
   private rotationSpeed: number = 0;
-  private maxRotationSpeed = 0.075;
+  private readonly maxRotationSpeed = 0.075;
   private rotationAcceleration = 0;
-  private rotationAccelerationBoost = 0.01; // applied when left/right key is pressed
+  private readonly rotationAccelerationBoost = 0.01; // applied when left/right key is pressed
 
   // physic constants for movement
   private readonly FRICTION: number = 0.1;
   private readonly ROTATION_FRICTION: number = 0.0025;
 
   // varaibles for rocket shooting
-  public readonly shootContainer: Container = new Container();
-  private canShoot: boolean = true;
-  private shootDeltaTime: number = 0;
-  private shootTime: number = 5; // time between each shot
-  private maxAmmo: number = 50;
-  private ammo: number = this.maxAmmo;
-  private reloadTime: number = 120; // time to reload
-  private ammoText: BitmapText; // (TODO: better HUD system)
+  public readonly bullets: Bullet[] = [];
+  // public readonly shootContainer: Container = new Container();
+  private canShoot: boolean;
+  private shootDeltaTime: number;
+  private readonly shootTime: number = 5; // time between each shot
+  private readonly maxAmmo: number = 50;
+  private ammo: number;
+  private readonly reloadTime: number = 120; // time to reload
+  public readonly ammoText: BitmapText; // (TODO: better HUD system)
 
   //  variables for smooth looking looping around edges
-  private spriteClones: Sprite[] = [];
+  public readonly spriteClones: Sprite[] = [];
 
-  constructor(container: Container) {
+  constructor() {
     super(Assets.get("rocket"));
     // creating the rocket/player
     this.scale.set(0.25);
     this.anchor.set(0.5);
-    this.position.set(SceneManager.width / 2, SceneManager.height / 2);
 
     // create the clones for smooth looping around edges
     for (let _ = 0; _ < 4; _++) {
@@ -54,33 +55,39 @@ export class Rocket extends Sprite {
     }
 
     // create the particle emitter for boost animation
-    const particleContainer: ParticleContainer = new ParticleContainer();
-    const particleSettings: EmitterConfigV3 = Assets.get("particleSettings");
-    this.emitter = new Emitter(particleContainer, particleSettings);
+    this.emitter = new Emitter(this.particleContainer, Assets.get("particleSettings"));
 
     // create the variables for rocket shooting
     for (let _: number = 0; _ < this.maxAmmo; _++) {
-      let b = new Bullet();
-      b.spriteClones.forEach((e) => container.addChild(e));
-      this.shootContainer.addChild(b);
+      this.bullets.push(new Bullet());
     }
+
     BitmapFont.from("comic 32", {
       fill: "#ffffff", // White, will be colored later
       fontFamily: "Comic Sans MS",
       fontSize: 32,
     });
-    this.ammoText = new BitmapText("Ammo " + this.ammo, {
+    this.ammoText = new BitmapText("Ammo: " + this.ammo, {
       fontName: "comic 32",
       fontSize: 24, // Making it too big or too small will look bad
       tint: 0xffffff, // Here we make it red.
     });
+  }
 
-    // add components to container
-    container.addChild(particleContainer);
-    container.addChild(this.shootContainer);
-    this.spriteClones.forEach((e) => container.addChild(e));
-    container.addChild(this);
-    container.addChild(this.ammoText);
+  public start(): void {
+    // set position, rotation and movement variables
+    this.position.set(SceneManager.width / 2, SceneManager.height / 2);
+    this.speed = 0;
+    this.acceleration = 0;
+    this.rotation = 0;
+    this.rotationSpeed = 0;
+    this.rotationAcceleration = 0;
+
+    // set properties for shooting
+    this.canShoot = false;
+    this.shootDeltaTime = 0;
+    this.ammo = this.maxAmmo;
+    this.ammoText.text = "Ammo " + this.ammo;
   }
 
   public update(framesPassed: number): void {
@@ -148,22 +155,21 @@ export class Rocket extends Sprite {
     // ------------------------------------------ update player shooting:
     // check keyboard input: shoot
     if (this.canShoot && Keyboard.state.get("Space")) {
-      for (let i: number = 0; i < this.shootContainer.children.length; i++) {
-        const bullet: Bullet = this.shootContainer.getChildAt(i) as Bullet;
+      for (const bullet of this.bullets) {
         if (bullet.visible == false) {
           bullet.start(this.x, this.y, this.rotation);
           this.canShoot = false;
           this.ammo--;
-          this.ammoText.text = "Ammo " + this.ammo;
+          this.ammoText.text = "Ammo: " + this.ammo;
           break;
         }
       }
     }
 
     // update the bullets:
-    this.shootContainer.children.forEach((bullet) => {
-      (bullet as Bullet).update(framesPassed);
-    });
+    for (const bullet of this.bullets) {
+      bullet.update(framesPassed);
+    }
 
     // update timers:
     if (this.canShoot == false) {
