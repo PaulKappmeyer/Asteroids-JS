@@ -36,7 +36,7 @@ export class GameScene extends Container implements IScene {
     this.gameoverText1.position.set(SceneManager.width / 2, SceneManager.height / 2);
     this.gameoverText1.visible = false;
 
-    this.gameoverText2 = new Text("Press 'R' to continue", Assets.get("gameoverTextstyle"))
+    this.gameoverText2 = new Text("Press 'R' to continue", Assets.get("gameoverTextstyle"));
     this.gameoverText2.anchor.set(0.5);
     this.gameoverText2.position.set(SceneManager.width / 2, SceneManager.height / 2 + 100);
     this.gameoverText2.style.fontSize = (this.gameoverText1.style.fontSize as number) * 0.5;
@@ -51,7 +51,7 @@ export class GameScene extends Container implements IScene {
 
     // add player to container
     this.addChild(this.player.particleContainer);
-    this.player.spriteClones.forEach((e) => this.addChild(e));
+    // this.player.spriteClones.forEach((e) => this.addChild(e));
     this.addChild(this.player);
     this.addChild(this.player.ammoText);
 
@@ -135,6 +135,13 @@ export class GameScene extends Container implements IScene {
         }
       }
     }
+
+    // ------------------------------------------ spawn new asteroids:
+    for (const asteroid of this.asteroids) {
+      if (asteroid.visible == false) {
+        asteroid.start();
+      }
+    }
   }
 
   // helper function for math
@@ -146,7 +153,15 @@ export class GameScene extends Container implements IScene {
     return ((value % modulo) + modulo) % modulo;
   }
 
+  public static modRange(value: number, min: number, max: number): number {
+    return this.modAbs(value - min, max - min) + min;
+  }
+
   public static randomNumber(min: number, max: number): number {
     return Math.random() * (max - min) + min;
+  }
+
+  public static isBetween(value: number, min: number, max: number) {
+    return min <= value && value <= max;
   }
 }

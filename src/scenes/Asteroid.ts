@@ -16,6 +16,7 @@ export class Asteroid extends Sprite {
   private readonly maxRotationSpeed: number = 0.05;
 
   //  variables for smooth looking looping around edges
+  private tightLoopAround: boolean;
   public readonly spriteClones: Sprite[] = [];
 
   constructor() {
@@ -43,29 +44,44 @@ export class Asteroid extends Sprite {
     this.y -= this.speed * Math.cos(this.direction) * framesPassed;
     this.rotation += this.rotationSpeed * framesPassed;
 
-    // loop rocket around edges
-    this.x = GameScene.modAbs(this.x, SceneManager.width);
-    this.y = GameScene.modAbs(this.y, SceneManager.height);
+    // has asteroid fully entered the view?
+    if (
+      GameScene.isBetween(this.x, this.width, SceneManager.width - this.width) &&
+      GameScene.isBetween(this.y, this.height, SceneManager.height - this.height)
+    ) {
+      this.tightLoopAround = true;
+      this.spriteClones.forEach((e) => (e.visible = true));
+    }
 
-    // update position and rotation of clones
-    this.spriteClones[0].position.set(this.x - SceneManager.width, this.y);
-    this.spriteClones[1].position.set(this.x + SceneManager.width, this.y);
-    this.spriteClones[2].position.set(this.x, this.y - SceneManager.height);
-    this.spriteClones[3].position.set(this.x, this.y + SceneManager.height);
-    this.spriteClones.forEach((e) => (e.rotation = this.rotation));
+    // loop around edges if in "thight mode" otherwise use a wider area
+    if (this.tightLoopAround) {
+      this.x = GameScene.modAbs(this.x, SceneManager.width);
+      this.y = GameScene.modAbs(this.y, SceneManager.height);
+
+      // update position and rotation of clones
+      this.spriteClones[0].position.set(this.x - SceneManager.width, this.y);
+      this.spriteClones[1].position.set(this.x + SceneManager.width, this.y);
+      this.spriteClones[2].position.set(this.x, this.y - SceneManager.height);
+      this.spriteClones[3].position.set(this.x, this.y + SceneManager.height);
+      this.spriteClones.forEach((e) => (e.rotation = this.rotation));
+    } else {
+      this.x = GameScene.modRange(this.x, -SceneManager.width * 0.2, SceneManager.width * 1.2);
+      this.y = GameScene.modRange(this.y, -SceneManager.height * 0.2, SceneManager.height * 1.2);
+    }
   }
 
   public start(): void {
-    this.position.set(0, 0);
+    this.position.set(-SceneManager.width * 0.2, -SceneManager.height * 0.2);
     this.scale.set(GameScene.randomNumber(this.minScale, this.maxScale));
     this.direction = GameScene.randomNumber(0, 2 * Math.PI);
     this.speed = GameScene.randomNumber(this.minSpeed, this.maxSpeed);
     this.rotationSpeed = GameScene.randomNumber(this.minRotationSpeed, this.maxRotationSpeed);
     this.visible = true;
 
+    this.tightLoopAround = false;
     this.spriteClones.forEach((e) => {
       e.scale.set(this.scale.x, this.scale.y);
-      e.visible = true;
+      e.visible = false;
     });
   }
 
