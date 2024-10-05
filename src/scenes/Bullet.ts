@@ -52,13 +52,23 @@ export class Bullet extends Sprite {
 
     // update time and look
     this.currentTraveltime += framesPassed;
-    this.alpha =
-      (2 * this.maxTraveltime - this.currentTraveltime) /
-      (2 * this.maxTraveltime);
+    this.alpha = (2 * this.maxTraveltime - this.currentTraveltime) / (2 * this.maxTraveltime);
     if (this.currentTraveltime > this.maxTraveltime) {
-      this.currentTraveltime = 0;
-      this.visible = false;
-      this.spriteClones.forEach((e) => (e.visible = false));
+      this.stop();
     }
+  }
+
+  public start(x: number, y: number, rotation: number): void {
+    this.x = x;
+    this.y = y;
+    this.rotation = rotation;
+    this.currentTraveltime = 0;
+    this.visible = true;
+    this.spriteClones.forEach((e) => (e.visible = true));
+  }
+
+  public stop(): void {
+    this.visible = false;
+    this.spriteClones.forEach((e) => (e.visible = false));
   }
 }

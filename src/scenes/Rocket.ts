@@ -1,11 +1,4 @@
-import {
-  Sprite,
-  Assets,
-  ParticleContainer,
-  Container,
-  BitmapText,
-  BitmapFont,
-} from "pixi.js";
+import { Sprite, Assets, ParticleContainer, Container, BitmapText, BitmapFont } from "pixi.js";
 import { Emitter, EmitterConfigV3 } from "@pixi/particle-emitter";
 import { SceneManager } from "../SceneManager";
 import { Keyboard } from "../Keyboard";
@@ -33,7 +26,7 @@ export class Rocket extends Sprite {
   private readonly ROTATION_FRICTION: number = 0.0025;
 
   // varaibles for rocket shooting
-  private shootContainer: Container = new Container();
+  public readonly shootContainer: Container = new Container();
   private canShoot: boolean = true;
   private shootDeltaTime: number = 0;
   private shootTime: number = 5; // time between each shot
@@ -101,8 +94,7 @@ export class Rocket extends Sprite {
     }
 
     if (Math.abs(this.rotationSpeed) > this.ROTATION_FRICTION) {
-      this.rotationAcceleration =
-        -Math.sign(this.rotationSpeed) * this.ROTATION_FRICTION;
+      this.rotationAcceleration = -Math.sign(this.rotationSpeed) * this.ROTATION_FRICTION;
     } else {
       this.rotationAcceleration = 0;
       this.rotationSpeed = 0;
@@ -134,13 +126,8 @@ export class Rocket extends Sprite {
     let newSpeed: number = this.speed + this.acceleration * framesPassed;
     this.speed = GameScene.clamp(newSpeed, -this.maxSpeed * 0.5, this.maxSpeed);
 
-    let newRotationSpeed: number =
-      this.rotationSpeed + this.rotationAcceleration * framesPassed;
-    this.rotationSpeed = GameScene.clamp(
-      newRotationSpeed,
-      -this.maxRotationSpeed,
-      this.maxRotationSpeed
-    );
+    let newRotationSpeed: number = this.rotationSpeed + this.rotationAcceleration * framesPassed;
+    this.rotationSpeed = GameScene.clamp(newRotationSpeed, -this.maxRotationSpeed, this.maxRotationSpeed);
 
     // update player position and rotation: pos += v * dt
     this.x += this.speed * Math.sin(this.rotation) * framesPassed;
@@ -164,11 +151,7 @@ export class Rocket extends Sprite {
       for (let i: number = 0; i < this.shootContainer.children.length; i++) {
         const bullet: Bullet = this.shootContainer.getChildAt(i) as Bullet;
         if (bullet.visible == false) {
-          bullet.x = this.x;
-          bullet.y = this.y;
-          bullet.rotation = this.rotation;
-          bullet.visible = true;
-          (bullet as Bullet).spriteClones.forEach((e) => (e.visible = true));
+          bullet.start(this.x, this.y, this.rotation);
           this.canShoot = false;
           this.ammo--;
           this.ammoText.text = "Ammo " + this.ammo;

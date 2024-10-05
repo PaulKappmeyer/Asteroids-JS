@@ -27,11 +27,7 @@ export class SceneManager {
   private static initializeAssetsPromise: Promise<unknown>;
 
   // Use this function ONCE to start the entire machinery
-  public static initialize(
-    width: number,
-    height: number,
-    background: number
-  ): void {
+  public static initialize(width: number, height: number, background: number): void {
     // We store it to be sure we can use Assets later on
     SceneManager.initializeAssetsPromise = Assets.init({ manifest: manifest });
 
@@ -39,9 +35,7 @@ export class SceneManager {
     const bundleNames = manifest.bundles.map((b) => b.name);
 
     // Initialize the assets and then start downloading the bundles in the background
-    SceneManager.initializeAssetsPromise.then(() =>
-      Assets.backgroundLoadBundle(bundleNames)
-    );
+    SceneManager.initializeAssetsPromise.then(() => Assets.backgroundLoadBundle(bundleNames));
 
     // store our width and height
     SceneManager._width = width;
@@ -106,20 +100,11 @@ export class SceneManager {
 
   public static resize(): void {
     // current screen size
-    const screenWidth = Math.max(
-      document.documentElement.clientWidth,
-      window.innerWidth || 0
-    );
-    const screenHeight = Math.max(
-      document.documentElement.clientHeight,
-      window.innerHeight || 0
-    );
+    const screenWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+    const screenHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 
     // uniform scale for our game
-    const scale = Math.min(
-      screenWidth / SceneManager.width,
-      screenHeight / SceneManager.height
-    );
+    const scale = Math.min(screenWidth / SceneManager.width, screenHeight / SceneManager.height);
 
     // the "uniformly englarged" size for our game
     const enlargedWidth = Math.floor(scale * SceneManager.width);
