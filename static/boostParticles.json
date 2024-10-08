@@ -1,10 +1,10 @@
 {
   "lifetime": {
     "min": 0.05,
-    "max": 0.15
+    "max": 0.25
   },
-  "frequency": 0.001,
-  "emitterLifetime": 0,
+  "frequency": 0.002,
+  "emitterLifetime": 5,
   "maxParticles": 1000,
   "addAtBack": false,
   "pos": {
@@ -32,8 +32,8 @@
     {
       "type": "moveSpeedStatic",
       "config": {
-        "min": 500,
-        "max": 500
+        "min": 400,
+        "max": 600
       }
     },
     {
@@ -43,11 +43,11 @@
           "list": [
             {
               "time": 0,
-              "value": 0.25
+              "value": 0.10
             },
             {
               "time": 1,
-              "value": 0.75
+              "value": 0.60
             }
           ]
         },
@@ -75,10 +75,10 @@
       "type": "rotation",
       "config": {
         "accel": 0,
-        "minSpeed": 50,
-        "maxSpeed": 50,
-        "minStart": 265,
-        "maxStart": 275
+        "minSpeed": 40,
+        "maxSpeed": 60,
+        "minStart": 240,
+        "maxStart": 300
       }
     },
     {

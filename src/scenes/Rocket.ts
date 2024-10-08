@@ -8,7 +8,8 @@ import { Bullet } from "./Bullet";
 export class Rocket extends Sprite {
   // particle emitter for boost animation
   public readonly particleContainer: ParticleContainer = new ParticleContainer();
-  private readonly emitter: Emitter;
+  private readonly leftBoostEmitter: Emitter;
+  private readonly rightBoostEmitter: Emitter;
 
   // varaibles for rocket movement
   private speed: number = 0;
@@ -55,7 +56,8 @@ export class Rocket extends Sprite {
     }
 
     // create the particle emitter for boost animation
-    this.emitter = new Emitter(this.particleContainer, Assets.get("boostParticles"));
+    this.leftBoostEmitter = new Emitter(this.particleContainer, Assets.get("boostParticles"));
+    this.rightBoostEmitter = new Emitter(this.particleContainer, Assets.get("boostParticles"));
 
     // create the variables for rocket shooting
     for (let _: number = 0; _ < this.maxAmmo; _++) {
@@ -108,25 +110,50 @@ export class Rocket extends Sprite {
     }
 
     // update emitter rotation and spawn position
-    this.emitter.rotate(Math.PI + this.rotation);
-    this.emitter.updateSpawnPos(this.x, this.y);
-    this.emitter.update(framesPassed);
-    this.emitter.emit = false;
+    this.leftBoostEmitter.rotate(Math.PI + this.rotation);
+    this.rightBoostEmitter.rotate(Math.PI + this.rotation);
+
+    this.rightBoostEmitter.updateSpawnPos(
+      this.x + Math.cos(Math.PI * (5 / 16) + this.rotation) * (this.width / 4),
+      this.y + Math.sin(Math.PI * (5 / 16) + this.rotation) * (this.height / 4)
+    );
+
+    this.leftBoostEmitter.updateSpawnPos(
+      this.x + Math.cos(Math.PI * (11 / 16) + this.rotation) * (this.width / 4),
+      this.y + Math.sin(Math.PI * (11 / 16) + this.rotation) * (this.height / 4)
+    );
+
+    this.leftBoostEmitter.resetPositionTracking();
+    this.rightBoostEmitter.resetPositionTracking();
+
+    this.leftBoostEmitter.update(framesPassed);
+    this.rightBoostEmitter.update(framesPassed);
+
+    this.leftBoostEmitter.emit = false;
+    this.rightBoostEmitter.emit = false;
 
     // check keyboard input: apply boost
     if (Keyboard.state.get("KeyW") || Keyboard.state.get("ArrowUp")) {
       this.acceleration += this.accelerationBoost;
-      this.emitter.emit = true; // start emitting of particles
+      // start emitting of particles
+      this.leftBoostEmitter.emit = true;
+      this.rightBoostEmitter.emit = true;
     }
     if (Keyboard.state.get("KeyS") || Keyboard.state.get("ArrowDown")) {
       this.acceleration += -this.accelerationBoost * 0.5;
-      this.emitter.emit = true; // start emitting of particles
+      // start emitting of particles
+      this.leftBoostEmitter.emit = true;
+      this.rightBoostEmitter.emit = true;
     }
     if (Keyboard.state.get("KeyA") || Keyboard.state.get("ArrowLeft")) {
       this.rotationAcceleration += -this.rotationAccelerationBoost;
+      // start emitting of particles
+      this.rightBoostEmitter.emit = true;
     }
     if (Keyboard.state.get("KeyD") || Keyboard.state.get("ArrowRight")) {
       this.rotationAcceleration += this.rotationAccelerationBoost;
+      // start emitting of particles
+      this.leftBoostEmitter.emit = true;
     }
 
     // update speed: v += a * dt

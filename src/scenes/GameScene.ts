@@ -51,7 +51,7 @@ export class GameScene extends Container implements IScene {
 
     // add player to container
     this.addChild(this.player.particleContainer);
-    // this.player.spriteClones.forEach((e) => this.addChild(e));
+    this.player.spriteClones.forEach((e) => this.addChild(e));
     this.addChild(this.player);
     this.addChild(this.player.ammoText);
 
