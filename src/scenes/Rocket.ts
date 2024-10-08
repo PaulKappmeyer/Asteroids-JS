@@ -37,6 +37,7 @@ export class Rocket extends Sprite {
   private ammo: number;
   private readonly reloadTime: number = 120; // time to reload
   public readonly ammoText: BitmapText; // (TODO: better HUD system)
+  private readonly shootKnockback = 1.5;
 
   //  variables for smooth looking looping around edges
   public readonly spriteClones: Sprite[] = [];
@@ -156,6 +157,23 @@ export class Rocket extends Sprite {
       this.leftBoostEmitter.emit = true;
     }
 
+    // check keyboard input: shoot
+    if (this.canShoot && Keyboard.state.get("Space")) {
+      for (const bullet of this.bullets) {
+        // is bullet active?
+        if (bullet.visible == false) {
+          bullet.start(this.x, this.y, this.rotation);
+          this.canShoot = false;
+          this.ammo--;
+          this.ammoText.text = "Ammo: " + this.ammo;
+
+          // apply knockback
+          this.acceleration += -this.shootKnockback;
+          break;
+        }
+      }
+    }
+
     // update speed: v += a * dt
     let newSpeed: number = this.speed + this.acceleration * framesPassed;
     this.speed = GameScene.clamp(newSpeed, -this.maxSpeed * 0.5, this.maxSpeed);
@@ -180,19 +198,6 @@ export class Rocket extends Sprite {
     this.spriteClones.forEach((e) => (e.rotation = this.rotation));
 
     // ------------------------------------------ update player shooting:
-    // check keyboard input: shoot
-    if (this.canShoot && Keyboard.state.get("Space")) {
-      for (const bullet of this.bullets) {
-        if (bullet.visible == false) {
-          bullet.start(this.x, this.y, this.rotation);
-          this.canShoot = false;
-          this.ammo--;
-          this.ammoText.text = "Ammo: " + this.ammo;
-          break;
-        }
-      }
-    }
-
     // update the bullets:
     for (const bullet of this.bullets) {
       bullet.update(framesPassed);
