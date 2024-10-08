@@ -131,7 +131,7 @@ export class GameScene extends Container implements IScene {
         const distanceSquared: number = Math.pow(asteroid.x - bullet.x, 2) + Math.pow(asteroid.y - bullet.y, 2);
         const radiiSumSquared: number = Math.pow(0.5 * (bullet.width + asteroid.width), 2);
         if (distanceSquared < radiiSumSquared) {
-          asteroid.stop();
+          asteroid.damage(1);
           bullet.stop();
         }
       }

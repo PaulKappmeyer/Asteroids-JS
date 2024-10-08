@@ -25,6 +25,10 @@ export class Asteroid extends Sprite {
   public readonly particleContainer: ParticleContainer = new ParticleContainer();
   private readonly emitter: Emitter;
 
+  private readonly minHealth = 3;
+  private readonly maxHealth = 8;
+  private health: number;
+
   constructor() {
     super(Assets.get("asteroid"));
     this.anchor.set(0.5);
@@ -84,12 +88,23 @@ export class Asteroid extends Sprite {
     }
   }
 
+  public damage(amount: number): void {
+    this.health -= amount;
+    this.alpha *= this.health / (this.health + 1);
+    this.spriteClones.forEach((e) => (e.alpha = this.alpha));
+    if (this.health <= 0) {
+      this.stop();
+    }
+  }
+
   public start(): void {
     this.position.set(-SceneManager.width * 0.2, -SceneManager.height * 0.2);
     this.scale.set(GameScene.randomNumber(this.minScale, this.maxScale));
     this.direction = GameScene.randomNumber(0, 2 * Math.PI);
     this.speed = GameScene.randomNumber(this.minSpeed, this.maxSpeed);
     this.rotationSpeed = GameScene.randomNumber(this.minRotationSpeed, this.maxRotationSpeed);
+    this.health = Math.floor(GameScene.randomNumber(this.minHealth, this.maxHealth));
+    this.alpha = 1;
     this.visible = true;
 
     this.tightLoopAround = false;
