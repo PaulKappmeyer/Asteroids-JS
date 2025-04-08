@@ -1,17 +1,30 @@
 {
-  "license": "",
+  "name": "asteroids",
+  "version": "1.0.0",
+  "description": "Little asteroids game",
+  "main": "bundle.js",
+  "homepage": "http://PaulKappmeyer.github.io/Asteroids-JS",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PaulKappmeyer/Asteroids-JS.git"
+  },
   "scripts": {
     "start": "webpack serve --mode=development",
     "build": "run-s clean build-only",
     "build-only": "webpack --mode=production",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
   },
+  "license": "MIT",
+  "author": "Paul Kappmeyer",
   "dependencies": {
     "@pixi/particle-emitter": "^5.0.8",
     "pixi.js": "^7.4.0"
   },
   "devDependencies": {
     "copy-webpack-plugin": "^12.0.2",
+    "gh-pages": "^6.3.0",
     "html-webpack-plugin": "^5.6.0",
     "npm-run-all": "^4.1.5",
     "rimraf": "^5.0.5",

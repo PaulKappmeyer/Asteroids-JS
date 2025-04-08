@@ -9,7 +9,7 @@ export class GameScene extends Container implements IScene {
 
   private player: Rocket;
 
-  private readonly NUMBER_OF_ASTEROIDS = 5;
+  private readonly NUMBER_OF_ASTEROIDS = 15;
   private asteroids: Asteroid[] = [];
 
   private running: boolean = true;
@@ -54,6 +54,7 @@ export class GameScene extends Container implements IScene {
     this.player.spriteClones.forEach((e) => this.addChild(e));
     this.addChild(this.player);
     this.addChild(this.player.ammoText);
+    this.addChild(this.player.scoreText);
 
     // add asteroids
     for (const asteroid of this.asteroids) {
@@ -133,6 +134,12 @@ export class GameScene extends Container implements IScene {
         if (distanceSquared < radiiSumSquared) {
           asteroid.damage(1);
           bullet.stop();
+
+          // is asteroid destroyed?
+          if (!asteroid.visible) {
+            this.player.score += 1;
+            this.player.scoreText.text = "Score: " + this.player.score;
+          }
         }
       }
     }

@@ -27,7 +27,7 @@ export class Rocket extends Sprite {
   private readonly FRICTION: number = 0.1;
   private readonly ROTATION_FRICTION: number = 0.0025;
 
-  // varaibles for rocket shooting
+  // variables for rocket shooting
   public readonly bullets: Bullet[] = [];
   // public readonly shootContainer: Container = new Container();
   private canShoot: boolean;
@@ -37,7 +37,11 @@ export class Rocket extends Sprite {
   private ammo: number;
   private readonly reloadTime: number = 120; // time to reload
   public readonly ammoText: BitmapText; // (TODO: better HUD system)
-  private readonly shootKnockback = 1.5;
+  private readonly shootKnockback = 0.35;
+
+  // variables for score
+  public score: number = 0;
+  public readonly scoreText: BitmapText; // (TODO: better HUD system)
 
   //  variables for smooth looking looping around edges
   public readonly spriteClones: Sprite[] = [];
@@ -65,16 +69,22 @@ export class Rocket extends Sprite {
       this.bullets.push(new Bullet());
     }
 
+    // create text
     BitmapFont.from("comic 32", {
-      fill: "#ffffff", // White, will be colored later
+      fill: "#ffffff",
       fontFamily: "Comic Sans MS",
-      fontSize: 32,
     });
-    this.ammoText = new BitmapText("Ammo: " + this.ammo, {
+
+    let style = {
       fontName: "comic 32",
-      fontSize: 24, // Making it too big or too small will look bad
-      tint: 0xffffff, // Here we make it red.
-    });
+      fontSize: 24,
+    };
+
+    this.ammoText = new BitmapText("", style);
+    this.ammoText.position.set(0, 0);
+
+    this.scoreText = new BitmapText("", style);
+    this.scoreText.position.set(0, 26);
   }
 
   public start(): void {
@@ -90,7 +100,13 @@ export class Rocket extends Sprite {
     this.canShoot = false;
     this.shootDeltaTime = 0;
     this.ammo = this.maxAmmo;
-    this.ammoText.text = "Ammo " + this.ammo;
+    
+    // set score
+    this.score = 0;
+
+    // update text
+    this.ammoText.text = "Ammo: " + this.ammo;
+    this.scoreText.text = "Score: " + this.score;
   }
 
   public update(framesPassed: number): void {
@@ -220,7 +236,7 @@ export class Rocket extends Sprite {
           this.shootDeltaTime = 0;
           this.canShoot = true;
           this.ammo = this.maxAmmo;
-          this.ammoText.text = "Ammo " + this.ammo;
+          this.ammoText.text = "Ammo: " + this.ammo;
         }
       }
     }
